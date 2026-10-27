@@ -273,15 +273,20 @@
     .help-section p { margin: 0; font-size: 11.5px; color: #475569; line-height: 1.45; }
 
     /* ＝＝＝＝＝ 印刷用（本番）CSS ＝＝＝＝＝ */
-    @page { size: A4 landscape; margin: 0; }
-    
     @media print {
       :root {
         /* CSS標準仕様：印刷時は 1mm = 3.77953px に強制固定して絶対ズレを防ぐ */
         --mm-to-px: 3.77953 !important;
       }
       
-      body { background: #fff !important; }
+      html, body { 
+        width: 100% !important; 
+        height: 100% !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        background: #fff !important; 
+      }
+      
       body * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       
       /* 印刷時に不要なUIとウォーターマークを非表示 */
@@ -289,35 +294,43 @@
         display: none !important; 
       }
       
-      /* プレビュー用のスタイルをリセット */
-      .preview-sticky-header {
-        position: static !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-      }
-      
-      .sheet-wrapper {
-        max-width: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-      }
-      
-      /* 印刷時：ミリ単位の絶対サイズ指定（210mmから僅かに縮めて白紙ページを予防） */
-      .sheet {
-        width: 297mm !important;
-        height: 209.5mm !important;
-        padding: 0 !important;
+      /* プレビュー用のスタイルをリセットし、はみ出しを許容（回転時のクリッピング対策） */
+      .preview-sticky-header, .sheet-wrapper {
         position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        margin: 0 !important;
+        top: 0 !important; left: 0 !important;
+        width: 100% !important; height: 100% !important;
+        margin: 0 !important; padding: 0 !important;
         box-shadow: none !important;
+        overflow: visible !important;
+      }
+      
+      .sheet {
+        position: absolute !important;
+        margin: 0 !important; padding: 0 !important;
+        box-shadow: none !important;
+        overflow: hidden !important;
       }
 
-      .sheet.is-hanshi {
-        width: 314mm !important;
-        height: 223.5mm !important;
+      /* 【通常時：横向き】 */
+      body:not(.is-portrait) .sheet {
+        top: 0 !important; left: 0 !important;
+        width: 297mm !important; height: 209.5mm !important;
+        transform: none !important;
+      }
+      body:not(.is-portrait) .sheet.is-hanshi {
+        width: 314mm !important; height: 223.5mm !important;
+      }
+
+      /* 【縦向き出力時：90度回転】 */
+      body.is-portrait .sheet {
+        top: 50% !important; left: 50% !important;
+        width: 297mm !important; height: 209.5mm !important;
+        /* 中心を基点に-90度回転させ、縦長の用紙に横長のデザインをはめ込む */
+        transform: translate(-50%, -50%) rotate(-90deg) !important;
+        transform-origin: center center !important;
+      }
+      body.is-portrait .sheet.is-hanshi {
+        width: 314mm !important; height: 223.5mm !important;
       }
     }
   </style>
@@ -417,9 +430,9 @@
               <li class="dropdown-item suggest-item" data-value="内祝"><span class="suggest-text">内祝</span><span class="suggest-badge badge-return">お返し</span></li>
               <li class="dropdown-item suggest-item" data-value="御礼"><span class="suggest-text">御礼</span><span class="suggest-badge badge-thanks">御礼・お礼</span></li>
               <li class="dropdown-item suggest-item" data-value="お年賀"><span class="suggest-text">お年賀</span><span class="suggest-badge badge-celebrate">新年・ご挨拶</span></li>
-<!--
+              <!--
               <li class="dropdown-item suggest-item" data-value="お山祝い"><span class="suggest-text">お山祝い</span><span class="suggest-badge badge-celebrate">祈願・お祝い</span></li>
--->
+              -->
               <li class="dropdown-item suggest-item" data-value="粗品"><span class="suggest-text">粗品</span><span class="suggest-badge badge-celebrate">慶事・一般</span></li>
               <li class="dropdown-item suggest-item" data-value="御中元"><span class="suggest-text">御中元</span><span class="suggest-badge badge-celebrate">慶事・一般</span></li>
               <li class="dropdown-item suggest-item" data-value="御歳暮"><span class="suggest-text">御歳暮</span><span class="suggest-badge badge-celebrate">慶事・一般</span></li>
@@ -577,8 +590,8 @@
       <p>詳細設定の「箱幅ガイド」でスライダーを好きな幅に合わせた後、「小」「中」「大」のボタンを長押しすると確認画面が表示され、現在設定しているサイズをそのボタンに上書き登録できます。</p>
     </div>
     <div class="help-section">
-      <h4>5. 印刷設定（余白・ズレ補正）</h4>
-      <p>「印刷設定を開く」ボタンから、フチなし非対応プリンターによる文字切れを防ぐための「余白ガイド」の調整や、印刷時に全体が左右にズレてしまう場合の「左右補正」が設定できます。</p>
+      <h4>5. 印刷設定（余白・ズレ・縦横回転）</h4>
+      <p>「印刷設定を開く」ボタンから、文字切れを防ぐための「余白ガイド」の調整、印刷時の「左右ズレ補正」、PDFを縦向き（90度回転）で出力する設定が可能です。</p>
     </div>
     <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
       <button type="button" id="helpCloseBtn" style="background: #1a73e8; border: none; color: #fff; font-size: 13px; font-weight: bold; padding: 6px 18px; border-radius: 20px; cursor: pointer;">閉じる</button>
@@ -600,6 +613,13 @@
   <dialog id="marginInputDialog">
     <div style="font-weight: bold; font-size: 16px; margin-bottom: 12px; color: #111;">🖨️ 印刷設定・位置補正</div>
     
+    <div style="font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">■ 印刷の向き（PDF用紙設定）</div>
+    <div style="margin-bottom: 16px;">
+      <label class="inline-checkbox-label" style="font-size: 13px; color: #111;">
+        <input type="checkbox" id="portraitPrintField" style="width: 16px; height: 16px;"> PDFを縦向きに出力する（90度回転）
+      </label>
+    </div>
+
     <div style="font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 6px;">■ 余白ガイド設定 <span style="font-weight: normal; color: #64748b;">(文字切れ防止用)</span></div>
     <div style="display: flex; gap: 10px; margin-bottom: 16px;">
       <div style="flex: 1;">
@@ -695,6 +715,7 @@
     const marginGuideCheck = document.getElementById('marginGuideCheck');
     const marginEditBtn = document.getElementById('marginEditBtn');
     const marginInputDialog = document.getElementById('marginInputDialog');
+    const portraitPrintField = document.getElementById('portraitPrintField');
     const marginTopBottomField = document.getElementById('marginTopBottomField');
     const marginLeftRightField = document.getElementById('marginLeftRightField');
     const marginInputCancel = document.getElementById('marginInputCancel');
@@ -784,21 +805,26 @@
     const presetNames = ['小', '中', '大'];
 
     // 状態管理変数
-    const STORAGE_KEY = 'noshi_tool_settings_v32'; // バージョン更新
+    const STORAGE_KEY = 'noshi_tool_settings_v33'; // バージョン更新
     const PRESETS_STORAGE_KEY = 'noshi_box_presets_v2';
-    const MARGIN_STORAGE_KEY = 'noshi_printer_margin_v3';
+    const MARGIN_STORAGE_KEY = 'noshi_printer_margin_v4';
     
     let currentPaperValue = 'a4';
     let currentFontValue = 'font-shippori';
     let safetyMarginTB = 5.0;
     let safetyMarginLR = 5.0;
-    let savedOffsetX = 0; // 左右補正の保存値
+    let savedOffsetX = 0; 
+    let savedIsPortrait = false; // 縦向き出力状態
+    
     let pendingMarginTB = null;
     let pendingMarginLR = null;
     let pendingOffsetX = null;
+    let pendingIsPortrait = false;
+    
     let presets = [140, 180, 220];
     let pendingPresetIndex = null;
     let pendingPresetVal = null;
+    
     let currentPaperHeightMm = 210;
     let currentPaperWidthMm = 297;
     const DEFAULT_B2 = '山田 太郎\n花子(はなこ)';
@@ -820,6 +846,27 @@
 
     const PAPER_LABELS = { 'a4': 'A4横 (297×210mm)', 'hanshi': '半紙判 (314×224mm)' };
 
+    // 縦横の動的@page書き換え関数
+    function updatePrintLayout() {
+      let styleEl = document.getElementById('dynamicPageStyle');
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'dynamicPageStyle';
+        document.head.appendChild(styleEl);
+      }
+      
+      const w = currentPaperValue === 'hanshi' ? 314 : 297;
+      const h = currentPaperValue === 'hanshi' ? 223.5 : 209.5;
+      
+      if (savedIsPortrait) {
+        document.body.classList.add('is-portrait');
+        styleEl.innerHTML = `@page { size: ${h}mm ${w}mm; margin: 0; }`;
+      } else {
+        document.body.classList.remove('is-portrait');
+        styleEl.innerHTML = `@page { size: ${w}mm ${h}mm; margin: 0; }`;
+      }
+    }
+
     function applyPaper(type) {
       currentPaperValue = type;
       if (type === 'hanshi') {
@@ -836,6 +883,8 @@
       document.documentElement.style.setProperty('--paper-width', currentPaperWidthMm);
       document.documentElement.style.setProperty('--paper-height', currentPaperHeightMm);
       paperTrigger.textContent = PAPER_LABELS[type] || 'A4横 (297×210mm)';
+      
+      updatePrintLayout();
       
       requestAnimationFrame(() => {
         updateScale();
@@ -987,6 +1036,7 @@
           b2Size: b2Size.value, 
           bottomPos: bottomPos.value,
           offsetX: savedOffsetX, 
+          isPortrait: savedIsPortrait,
           boxWidth: boxWidth.value, 
           lsTop: lsTop.value, 
           lsB1: lsB1.value, 
@@ -1021,6 +1071,7 @@
           if (d.b2Size) b2Size.value = d.b2Size; 
           if (d.bottomPos) bottomPos.value = d.bottomPos;
           if (d.offsetX !== undefined) savedOffsetX = parseFloat(d.offsetX); 
+          if (d.isPortrait !== undefined) savedIsPortrait = d.isPortrait;
           if (d.boxWidth !== undefined) boxWidth.value = d.boxWidth;
           if (d.lsTop !== undefined) lsTop.value = d.lsTop; 
           if (d.lsB1 !== undefined) lsB1.value = d.lsB1; 
@@ -1036,7 +1087,7 @@
     const saveSettings = () => loadAndSave(true);
 
     function syncAllUI() {
-      applyPaper(currentPaperValue);
+      applyPaper(currentPaperValue); // includes updatePrintLayout
       applyVisualSettings();
       topText.textContent = topInput.value; 
       updateMannerTip(topInput.value);
@@ -1061,7 +1112,6 @@
       lsB1Val.textContent = Math.abs(vLsB1 - 0.15) < 0.005 ? '標準:0.15em' : `${vLsB1.toFixed(2)}em`; 
       lsB2Val.textContent = Math.abs(vLsB2 - 0.15) < 0.005 ? '標準:0.15em' : `${vLsB2.toFixed(2)}em`;
       
-      // offsetX はダイアログ内のため個別処理
       offsetX.value = savedOffsetX;
       offsetXVal.textContent = savedOffsetX === 0 ? '標準:0mm' : (savedOffsetX > 0 ? `+${savedOffsetX}mm` : `${savedOffsetX}mm`);
       
@@ -1094,18 +1144,17 @@
     });
 
     // ------------------------------------
-    // ダイアログ・印刷設定（余白＋左右ズレ）
+    // ダイアログ・印刷設定（余白＋左右ズレ＋回転）
     // ------------------------------------
     marginGuideCheck.addEventListener('change', () => { 
       updateMarginGuide(); 
       saveSettings(); 
     });
     
-    // ダイアログを開く
     marginEditBtn.addEventListener('click', () => { 
+      portraitPrintField.checked = savedIsPortrait;
       marginTopBottomField.value = safetyMarginTB; 
       marginLeftRightField.value = safetyMarginLR; 
-      // 左右位置の現在値をスライダーにセット
       offsetX.value = savedOffsetX;
       offsetXVal.textContent = savedOffsetX === 0 ? '標準:0mm' : (savedOffsetX > 0 ? `+${savedOffsetX}mm` : `${savedOffsetX}mm`);
       document.documentElement.style.setProperty('--offset-x', savedOffsetX);
@@ -1113,7 +1162,6 @@
       marginInputDialog.showModal(); 
     });
     
-    // スライダー操作時（ライブプレビュー用）
     offsetX.addEventListener('input', e => {
       const v = parseFloat(e.target.value);
       offsetXVal.textContent = v === 0 ? '標準:0mm' : (v > 0 ? `+${v}mm` : `${v}mm`);
@@ -1121,7 +1169,6 @@
       updateFill(offsetX, fillOffsetX);
     });
 
-    // スライダーのダブルタップで0に戻す
     wrapOffsetX.addEventListener('dblclick', () => {
       offsetX.value = 0;
       offsetXVal.textContent = '標準:0mm';
@@ -1130,7 +1177,6 @@
     });
     
     marginInputCancel.addEventListener('click', () => {
-      // キャンセル時はライブプレビューを元の値に戻す
       document.documentElement.style.setProperty('--offset-x', savedOffsetX);
       updateFill(offsetX, fillOffsetX);
       marginInputDialog.close();
@@ -1148,6 +1194,7 @@
       let vTB = parseFloat(marginTopBottomField.value);
       let vLR = parseFloat(marginLeftRightField.value);
       let vOffX = parseFloat(offsetX.value);
+      let vPortrait = portraitPrintField.checked;
       
       if (isNaN(vTB) || vTB < 0) vTB = 0; if (vTB > 30) vTB = 30;
       if (isNaN(vLR) || vLR < 0) vLR = 0; if (vLR > 30) vLR = 30;
@@ -1155,14 +1202,16 @@
       pendingMarginTB = vTB; 
       pendingMarginLR = vLR; 
       pendingOffsetX = vOffX;
+      pendingIsPortrait = vPortrait;
+      
       marginInputDialog.close();
       
-      marginConfirmMsg.innerHTML = `印刷設定を更新しますか？<br><strong>余白(上下: ${vTB}mm / 左右: ${vLR}mm)</strong><br><strong>印字左右補正: ${vOffX > 0 ? '+'+vOffX : vOffX}mm</strong>`; 
+      const rotText = vPortrait ? "縦向き(90度回転)" : "横のまま";
+      marginConfirmMsg.innerHTML = `印刷設定を更新しますか？<br><strong>用紙: ${rotText}</strong><br><strong>余白(上下: ${vTB}mm / 左右: ${vLR}mm)</strong><br><strong>左右補正: ${vOffX > 0 ? '+'+vOffX : vOffX}mm</strong>`; 
       marginConfirmDialog.showModal();
     });
     
     marginConfirmCancel.addEventListener('click', () => {
-      // キャンセル時はライブプレビューを元の値に戻す
       document.documentElement.style.setProperty('--offset-x', savedOffsetX);
       updateFill(offsetX, fillOffsetX);
       marginConfirmDialog.close();
@@ -1172,10 +1221,10 @@
       safetyMarginTB = pendingMarginTB; 
       safetyMarginLR = pendingMarginLR; 
       savedOffsetX = pendingOffsetX;
+      savedIsPortrait = pendingIsPortrait;
       
-      // プレビュー反映
       document.documentElement.style.setProperty('--offset-x', savedOffsetX);
-      
+      updatePrintLayout();
       saveSettings(); 
       updateMarginGuide(); 
       marginConfirmDialog.close(); 
@@ -1537,6 +1586,7 @@
       
       savedOffsetX = 0; 
       offsetX.value = 0;
+      savedIsPortrait = false;
       
       boxWidth.value = 0; 
       lsTop.value = 0.15; 
