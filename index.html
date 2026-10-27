@@ -317,7 +317,7 @@
         height: 223.5mm !important;
       }
 
-      /* 【縦向き出力時：左上原点から正確に敷き詰め】 */
+      /* 【縦向き出力時：A4縦枠にぴったり収まる回転配置】 */
       body.is-portrait .sheet {
         position: absolute !important;
         top: 0 !important;
@@ -325,14 +325,14 @@
         width: 297mm !important; 
         height: 209.5mm !important;
         transform-origin: 0 0 !important;
-        transform: translateY(210mm) rotate(-90deg) !important;
+        transform: translateX(210mm) rotate(90deg) !important;
         overflow: hidden !important;
       }
       body.is-portrait .sheet.is-hanshi {
         width: 314mm !important; 
         height: 223.5mm !important;
-        transform: translateY(224mm) rotate(-90deg) !important;
-      }
+        transform: translateX(224mm) rotate(90deg) !important;
+      } 
     }
   </style>
 </head>
