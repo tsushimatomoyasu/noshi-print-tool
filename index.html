@@ -1024,7 +1024,13 @@
     function loadAndSave(isSave) {
       if (isSave) {
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-        localStorage.setItem(MARGIN_STORAGE_KEY, JSON.stringify({tb: safetyMarginTB, lr: safetyMarginLR}));
+        // ★修正: プリンター環境設定（余白・左右補正・縦向き）をまとめて独立保存
+        localStorage.setItem(MARGIN_STORAGE_KEY, JSON.stringify({
+          tb: safetyMarginTB, 
+          lr: safetyMarginLR,
+          offsetX: savedOffsetX,
+          isPortrait: savedIsPortrait
+        }));
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           paper: currentPaperValue, 
           font: currentFontValue, 
@@ -1041,8 +1047,6 @@
           b2Text: b2Input.value, 
           b2Size: b2Size.value, 
           bottomPos: bottomPos.value,
-          offsetX: savedOffsetX, 
-          isPortrait: savedIsPortrait,
           boxWidth: boxWidth.value, 
           lsTop: lsTop.value, 
           lsB1: lsB1.value, 
@@ -1055,8 +1059,14 @@
           if(Array.isArray(p)) presets = p; 
         } catch(e) {}
         try { 
+          // ★修正: プリンター環境設定を読み込み
           const m = JSON.parse(localStorage.getItem(MARGIN_STORAGE_KEY)); 
-          if (m) { safetyMarginTB = m.tb || 5; safetyMarginLR = m.lr || 5; } 
+          if (m) { 
+            safetyMarginTB = m.tb !== undefined ? m.tb : 5.0; 
+            safetyMarginLR = m.lr !== undefined ? m.lr : 5.0; 
+            if (m.offsetX !== undefined) savedOffsetX = parseFloat(m.offsetX);
+            if (m.isPortrait !== undefined) savedIsPortrait = m.isPortrait;
+          } 
         } catch(e) {}
         try {
           const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -1076,8 +1086,6 @@
           if (d.b2Text !== undefined) b2Input.value = d.b2Text; 
           if (d.b2Size) b2Size.value = d.b2Size; 
           if (d.bottomPos) bottomPos.value = d.bottomPos;
-          if (d.offsetX !== undefined) savedOffsetX = parseFloat(d.offsetX); 
-          if (d.isPortrait !== undefined) savedIsPortrait = d.isPortrait;
           if (d.boxWidth !== undefined) boxWidth.value = d.boxWidth;
           if (d.lsTop !== undefined) lsTop.value = d.lsTop; 
           if (d.lsB1 !== undefined) lsB1.value = d.lsB1; 
@@ -1590,9 +1598,7 @@
       b2Size.value = 15; 
       bottomPos.value = 115;
       
-      savedOffsetX = 0; 
-      offsetX.value = 0;
-      savedIsPortrait = false;
+      // ★修正: savedOffsetX と savedIsPortrait はリセット対象外（保持する）
       
       boxWidth.value = 0; 
       lsTop.value = 0.15; 
