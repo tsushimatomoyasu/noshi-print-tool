@@ -272,7 +272,7 @@
     .help-section h4 { margin: 0 0 3px 0; font-size: 13px; color: #1a73e8; }
     .help-section p { margin: 0; font-size: 11.5px; color: #475569; line-height: 1.45; }
 
-/* ＝＝＝＝＝ 印刷用（本番）CSS ＝＝＝＝＝ */
+    /* ＝＝＝＝＝ 印刷用（本番）CSS ＝＝＝＝＝ */
     @media print {
       :root {
         --mm-to-px: 3.77953 !important;
@@ -806,7 +806,7 @@
     const presetNames = ['小', '中', '大'];
 
     // 状態管理変数
-    const STORAGE_KEY = 'noshi_tool_settings_v33'; // バージョン更新
+    const STORAGE_KEY = 'noshi_tool_settings_v33'; 
     const PRESETS_STORAGE_KEY = 'noshi_box_presets_v2';
     const MARGIN_STORAGE_KEY = 'noshi_printer_margin_v4';
     
@@ -815,7 +815,7 @@
     let safetyMarginTB = 5.0;
     let safetyMarginLR = 5.0;
     let savedOffsetX = 0; 
-    let savedIsPortrait = false; // 縦向き出力状態
+    let savedIsPortrait = false; 
     
     let pendingMarginTB = null;
     let pendingMarginLR = null;
@@ -848,7 +848,7 @@
     const PAPER_LABELS = { 'a4': 'A4横 (297×210mm)', 'hanshi': '半紙判 (314×224mm)' };
 
     // 縦横の動的@page書き換え関数
-  function updatePrintLayout() {
+    function updatePrintLayout() {
       let styleEl = document.getElementById('dynamicPageStyle');
       if (!styleEl) {
         styleEl = document.createElement('style');
@@ -859,14 +859,14 @@
       if (savedIsPortrait) {
         document.body.classList.add('is-portrait');
         if (currentPaperValue === 'hanshi') {
-          styleEl.innerHTML = `@page { size: 224mm 314mm portrait; margin: 0; }`;
+          styleEl.innerHTML = `@page { size: 224mm 314mm; margin: 0; }`;
         } else {
           styleEl.innerHTML = `@page { size: A4 portrait; margin: 0; }`;
         }
       } else {
         document.body.classList.remove('is-portrait');
         if (currentPaperValue === 'hanshi') {
-          styleEl.innerHTML = `@page { size: 314mm 224mm landscape; margin: 0; }`;
+          styleEl.innerHTML = `@page { size: 314mm 224mm; margin: 0; }`;
         } else {
           styleEl.innerHTML = `@page { size: A4 landscape; margin: 0; }`;
         }
@@ -1024,13 +1024,14 @@
     function loadAndSave(isSave) {
       if (isSave) {
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-        // ★修正: プリンター環境設定（余白・左右補正・縦向き）をまとめて独立保存
+        
         localStorage.setItem(MARGIN_STORAGE_KEY, JSON.stringify({
           tb: safetyMarginTB, 
           lr: safetyMarginLR,
           offsetX: savedOffsetX,
           isPortrait: savedIsPortrait
         }));
+        
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           paper: currentPaperValue, 
           font: currentFontValue, 
@@ -1059,7 +1060,6 @@
           if(Array.isArray(p)) presets = p; 
         } catch(e) {}
         try { 
-          // ★修正: プリンター環境設定を読み込み
           const m = JSON.parse(localStorage.getItem(MARGIN_STORAGE_KEY)); 
           if (m) { 
             safetyMarginTB = m.tb !== undefined ? m.tb : 5.0; 
@@ -1597,8 +1597,6 @@
       b2Input.value = ''; 
       b2Size.value = 15; 
       bottomPos.value = 115;
-      
-      // ★修正: savedOffsetX と savedIsPortrait はリセット対象外（保持する）
       
       boxWidth.value = 0; 
       lsTop.value = 0.15; 
