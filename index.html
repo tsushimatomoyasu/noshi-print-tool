@@ -317,23 +317,21 @@
         height: 223.5mm !important;
       }
 
-      /* 【縦向き出力時：A4縦(210x297mm)の中央に90度回転して配置】 */
+      /* 【縦向き出力時：左上原点から正確に敷き詰め】 */
       body.is-portrait .sheet {
         position: absolute !important;
-        top: 148.5mm !important;
-        left: 105mm !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 297mm !important; 
         height: 209.5mm !important;
-        /* 中心を基準に反時計回りに90度回転 */
-        transform: translate(-50%, -50%) rotate(-90deg) !important;
-        transform-origin: center center !important;
+        transform-origin: 0 0 !important;
+        transform: translateY(210mm) rotate(-90deg) !important;
         overflow: hidden !important;
       }
       body.is-portrait .sheet.is-hanshi {
-        top: 157mm !important;
-        left: 112mm !important;
         width: 314mm !important; 
         height: 223.5mm !important;
+        transform: translateY(224mm) rotate(-90deg) !important;
       }
     }
   </style>
